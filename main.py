@@ -1,7 +1,7 @@
 import telebot
 from commands import registerCommands
 
-bot = telebot.TeleBot(token='7348378632:AAEk9WNuJBcScIZHvqpcqqEyAFQ8lT045SQ', parse_mode='HTML')
+bot = telebot.TeleBot(token='', parse_mode='HTML')
 
 registerCommands(bot)
 
