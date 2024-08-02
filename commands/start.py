@@ -1,10 +1,13 @@
 from telebot import TeleBot
 from telebot import types
 import sqlite3
+import json
 
-#buttonProofs = types.InlineKeyboardButton('📦 Preview', callback_data='proofsFunc')
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
 buttonProofs2 = types.InlineKeyboardButton('📦 Preview', url='https://saint2.su/embed/bPQKpwanrS8')
-stripeLink = ''
+stripeLink = config['stripe_link']
 
 keyboardProofs = types.InlineKeyboardMarkup()
 keyboardProofs.add(buttonProofs2)

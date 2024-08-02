@@ -1,15 +1,23 @@
 from telebot import TeleBot
 from telebot import types
 import re
+import json
 
-approvalGroup = ''
-groupLink = '' 
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
+approvalGroup = config['chat_id']
+groupLink = config['group_link']
 
 allowAcess = types.InlineKeyboardButton('✅ Liberar Acesso', callback_data='allowAcessFunc')
 confirm = types.InlineKeyboardButton('✅ Confirmar', callback_data='confirmFunc')
 cancel = types.InlineKeyboardButton('❌ Cancelar', callback_data='cancelFunc')
 delete = types.InlineKeyboardButton('🗑 Excluir', callback_data='deleteFunc')
 deleteForced = types.InlineKeyboardButton('🗑 Excluir', callback_data='confirmFunc')
+
+buttonPornContent = types.InlineKeyboardButton('🔧 Fix Group Ban', url='https://t.me/pornographiccontent')
+keyboardPornContent = types.InlineKeyboardMarkup()
+keyboardPornContent.add(buttonPornContent)
 
 keyboard = types.InlineKeyboardMarkup()
 keyboard.add(allowAcess, delete)
@@ -34,19 +42,23 @@ def saySomething(bot: TeleBot):
             bot.reply_to(message, text='❌ <b>Ocorreu um erro ao enviar o link.</b>')
 
 def approvalButtonFunc(bot: TeleBot):
-    @bot.callback_query_handler(func=lambda call: call.data == 'allowAcessFunc')
-    def callback_query(call):
-            
-        match = re.search(r'ID do Cliente: (\d+)', call.message.caption or call.message.text)
-        cliente_id = match.group(1)
+        @bot.callback_query_handler(func=lambda call: call.data == 'allowAcessFunc')
+        def callback_query(call):
+                
+            match = re.search(r'ID do Cliente: (\d+)', call.message.caption or call.message.text)
+            cliente_id = match.group(1)
 
-        bot.send_message(chat_id=f'{cliente_id}', text=f'<b>Your access link:</b>\n\n{groupLink}')
-        bot.reply_to(call.message, text='✅ <b>Link sent successfully.</b>')
+            try:
+                bot.send_message(chat_id=f'{cliente_id}', text=f'<b>Your access link:</b>\n\n{groupLink}')
+                bot.send_message(chat_id=f'{cliente_id}', text=f'If you see “This Group Has Been Banned For Spreading Pornographic Content” you can still join and view that content in a fast and secure way by following the instructions in this channel.', reply_markup=keyboardPornContent)
+                bot.reply_to(call.message, text='✅ <b>Link sent successfully.</b>')
+            except Exception as e:
+                 bot.reply_to(call.message, f'❌ <b>Ocorreu um erro: {e}</b>')
 
-        if call.message.photo == None:
-                bot.edit_message_text(text=call.message.text, chat_id=approvalGroup, message_id=call.message.message_id, reply_markup=keyboardAllowed)
-        else:
-                bot.edit_message_caption(caption=call.message.caption, chat_id=approvalGroup, message_id=call.message.message_id, reply_markup=keyboardAllowed)
+            if call.message.photo == None:
+                    bot.edit_message_text(text=call.message.text, chat_id=approvalGroup, message_id=call.message.message_id, reply_markup=keyboardAllowed)
+            else:
+                    bot.edit_message_caption(caption=call.message.caption, chat_id=approvalGroup, message_id=call.message.message_id, reply_markup=keyboardAllowed)
 
 def deleteFunc(bot: TeleBot):
     @bot.callback_query_handler(func=lambda call: call.data == 'deleteFunc')
